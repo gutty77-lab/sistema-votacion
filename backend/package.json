@@ -1,0 +1,15 @@
+{
+  "name": "sistema-votacion",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de votación",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6"
+  }
+}

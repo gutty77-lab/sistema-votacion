@@ -1,0 +1,7 @@
+# .gitignore
+node_modules/
+backend/database/*.db
+backend/database/*.db-journal
+.DS_Store
+*.log
+.env

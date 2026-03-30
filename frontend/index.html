@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ing. Carlos Verón - Sistema de Votación 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fff5f0 0%, #ffe8e0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* Pantalla de Login */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .login-card h2 {
+            color: #DC2626;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .login-card .intendente {
+            color: #374151;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .login-card .logo-img {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: #DC2626;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .login-input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .login-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .login-input-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 60px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .login-input-group input:focus {
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .login-btn {
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #B91C1C;
+        }
+
+        .login-error {
+            color: #DC2626;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            background: #FEE2E2;
+            padding: 0.5rem;
+            border-radius: 40px;
+        }
+
+        .bandera-footer {
+            background: linear-gradient(90deg, #DC2626 0%, #DC2626 33%, #FBBF24 33%, #FBBF24 66%, #DC2626 66%, #DC2626 100%);
+            height: 8px;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        /* Sistema Principal */
+        .main-system {
+            display: none;
+        }
+
+        .main-system.active {
+            display: block;
+        }
+
+        .voting-card {
+            max-width: 700px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #DC2626;
+            padding: 1rem 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+        }
+
+        .header-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #DC2626;
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .sub {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.3rem;
+        }
+
+        .user-info {
+            background: #FEF2F2;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 1px solid #FEE2E2;
+        }
+
+        .user-info span {
+            color: #DC2626;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .user-info .badge {
+            background: #DC2626;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .user-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .logout-btn, .admin-btn {
+            background: transparent;
+            border: 1px solid #DC2626;
+            color: #DC2626;
+            padding: 0.3rem 0.8rem;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover, .admin-btn:hover {
+            background: #DC2626;
+            color: white;
+        }
+
+        .admin-btn {
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+        }
+
+        .admin-btn:hover {
+            background: #8B5CF6;
+            border-color: #8B5CF6;
+        }
+
+        .search-section {
+            padding: 1.5rem;
+            background: #fff;
+            border-bottom: 1px solid #e9edf2;
+        }
+
+        .label-busqueda {
+            font-weight: 600;
+            color: #DC2626;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cedula-input {
+            flex: 3;
+            min-width: 200px;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            border: 1.5px solid #cfdfed;
+            border-radius: 60px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .cedula-input:focus {
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .btn-buscar {
+            background: #DC2626;
+            border: none;
+            padding: 0.85rem 1.8rem;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-buscar:hover:not(:disabled) {
+            background: #B91C1C;
+        }
+
+        .btn-buscar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .botones-accion {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-accion {
+            background: transparent;
+            border: 2px solid #DC2626;
+            color: #DC2626;
+            font-weight: bold;
+            padding: 0.7rem 1rem;
+            border-radius: 60px;
+            flex: 1;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-accion:hover:not(:disabled) {
+            background: #DC2626;
+            color: white;
+        }
+
+        .btn-accion:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-pagar {
+            background: #10B981;
+            border-color: #10B981;
+            color: white;
+        }
+
+        .btn-pagar:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .btn-despagar {
+            background: #F59E0B;
+            border-color: #F59E0B;
+            color: white;
+            display: none;
+        }
+
+        .btn-nueva-busqueda {
+            background: #6B7280;
+            border-color: #6B7280;
+            color: white;
+        }
+
+        .result-card {
+            padding: 1.5rem;
+            background: #ffffff;
+        }
+
+        .voter-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+            border-left: 5px solid #DC2626;
+            padding-left: 1rem;
+        }
+
+        .cedula-detalle {
+            font-size: 1rem;
+            color: #4a627a;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .lugar-votacion {
+            background: #FEF2F2;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .lugar-titulo {
+            font-weight: 700;
+            color: #DC2626;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .lugar-nombre {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .distrito {
+            margin-top: 0.25rem;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            background: #FEF2F2;
+            padding: 1.5rem 1.2rem;
+            border-radius: 1.2rem;
+            justify-content: center;
+        }
+
+        .info-item {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #DC2626;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1.2;
+        }
+
+        .seccional-badge {
+            background: #FEF3C7;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #DC2626;
+            margin-top: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .stats-footer {
+            background: #FEF2F2;
+            padding: 0.8rem;
+            text-align: center;
+            border-top: 1px solid #FEE2E2;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #DC2626;
+        }
+
+        .footer-credits {
+            background: #FEF2F2;
+            padding: 0.5rem;
+            text-align: center;
+            border-top: 1px solid #FEE2E2;
+            font-size: 0.7rem;
+            color: #DC2626;
+        }
+
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: #DC2626;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 60px;
+            outline: none;
+        }
+
+        .modal-content button {
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 60px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .usuario-item, .pago-item {
+            background: #F3F4F6;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-user, .despagar-item {
+            background: #DC2626;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .despagar-item {
+            background: #F59E0B;
+        }
+
+        .contador-pagados {
+            background: #DC2626;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .mensaje-error, .mensaje-info, .mensaje-success {
+            margin-top: 0.7rem;
+            font-size: 0.85rem;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+
+        .mensaje-error {
+            color: #DC2626;
+            background: #FEE2E2;
+        }
+
+        .mensaje-info {
+            color: #0c5460;
+            background: #e3f2fd;
+        }
+
+        .mensaje-success {
+            color: #2c6e3f;
+            background: #d5f4e6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 1rem;
+            color: #6B7280;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #DC2626;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Pantalla de Login -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div class="logo-img">CV</div>
+        <h2>Ing. Carlos Verón</h2>
+        <div class="intendente">Intendente 2026 - 2031</div>
+        
+        <div class="login-input-group">
+            <label>🔑 Número de Cédula</label>
+            <input type="text" id="loginCedula" placeholder="Ingrese su cédula" autocomplete="off">
+        </div>
+        
+        <div class="login-input-group">
+            <label>🔒 Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="Ingrese su contraseña">
+        </div>
+        
+        <button id="loginBtn" class="login-btn">🔓 INICIAR SESIÓN</button>
+        
+        <div id="loginError" class="login-error" style="display: none;"></div>
+        <div class="bandera-footer"></div>
+    </div>
+</div>
+
+<!-- Modal para Gestión de Usuarios -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <h3>👥 Gestión de Usuarios</h3>
+        <input type="text" id="newUserCedula" placeholder="Cédula del usuario">
+        <input type="text" id="newUserName" placeholder="Nombre completo">
+        <input type="password" id="newUserPassword" placeholder="Contraseña">
+        <select id="newUserRol">
+            <option value="caja">💰 CAJA</option>
+            <option value="admin">👑 ADMIN</option>
+        </select>
+        <button id="crearUserBtn">➕ CREAR USUARIO</button>
+        <hr style="margin: 1rem 0;">
+        <h4>Usuarios Registrados</h4>
+        <div id="listaUsuarios" class="loading">Cargando usuarios...</div>
+        <button id="closeUserModal" style="background: #6B7280;">❌ CERRAR</button>
+    </div>
+</div>
+
+<!-- Modal para Ver Pagados -->
+<div id="pagadosModal" class="modal">
+    <div class="modal-content">
+        <h3>✅ Votantes que Pagaron <span id="contadorPagados" class="contador-pagados">0</span></h3>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <input type="text" id="buscarPagados" placeholder="🔍 Buscar por nombre o cédula..." style="flex:1;">
+            <button id="filtrarBtn" style="width: auto; background: #DC2626;">🔎</button>
+            <button id="limpiarFiltroBtn" style="width: auto; background: #6B7280;">🗑️</button>
+        </div>
+        <div id="listaPagados"></div>
+        <button id="closePagadosModal" style="background: #6B7280;">❌ CERRAR</button>
+    </div>
+</div>
+
+<!-- Sistema Principal -->
+<div id="mainSystem" class="main-system">
+    <div class="voting-card">
+        <div class="header">
+            <div class="header-logo">CV</div>
+            <div class="header-text">
+                <h1>Ing. Carlos Verón</h1>
+                <div class="sub">Intendente 2026 - 2031</div>
+            </div>
+        </div>
+        
+        <div class="user-info">
+            <span>👤 Usuario: <strong id="userNameDisplay">-</strong> <span id="userRolBadge" class="badge"></span></span>
+            <div class="user-buttons">
+                <button id="adminUserBtn" class="admin-btn" style="display: none;">👥 Usuarios</button>
+                <button id="adminPagadosBtn" class="admin-btn" style="display: none;">✅ Pagados</button>
+                <button id="logoutBtn" class="logout-btn">🚪 Salir</button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="label-busqueda">
+                <span>🔍</span> Número de Cédula
+            </div>
+            <div class="input-group">
+                <input type="text" id="cedulaInput" class="cedula-input" placeholder="Ingrese número de cédula" autocomplete="off">
+                <button id="buscarBtn" class="btn-buscar">🔎 Buscar</button>
+            </div>
+            <div id="statusMsg"></div>
+            <div class="botones-accion">
+                <button id="pagarBtn" class="btn-accion btn-pagar" disabled>💰 PAGAR</button>
+                <button id="despagarBtn" class="btn-accion btn-despagar">↩️ DESPAGAR</button>
+                <button id="nuevaBusquedaBtn" class="btn-accion btn-nueva-busqueda">🔍 NUEVA BÚSQUEDA</button>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-card hidden">
+            <div id="voterFullName" class="voter-name">-</div>
+            <div id="cedulaLine" class="cedula-detalle">C.I. -</div>
+            <div class="lugar-votacion">
+                <div class="lugar-titulo">📍 LUGAR DE VOTACIÓN</div>
+                <div id="lugarNombre" class="lugar-nombre">-</div>
+                <div id="distritoText" class="distrito">-</div>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">MESA</div>
+                    <div id="mesaValue" class="info-value">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">ORDEN</div>
+                    <div id="ordenValue" class="info-value">-</div>
+                </div>
+            </div>
+            <div id="seccionalBadge" class="seccional-badge">-</div>
+        </div>
+
+        <div class="stats-footer" id="statsFooter">
+            📊 Conectando al servidor...
+        </div>
+        
+        <div class="footer-credits">
+            Sistema desarrollado por Compunauta EAS
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== CONFIGURACIÓN API ====================
+    const API_URL = window.location.origin + '/api';
+    
+    // Estado global
+    let usuarioActual = null;
+    let votanteActual = null;
+    let pagosCache = new Map();
+    let totalVotantes = 0;
+    let buscando = false;
+    let procesandoPago = false;
+
+    // ==================== FUNCIONES API ====================
+    
+    async function apiRequest(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Error en la petición');
+            }
+            
+            return response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+    
+    async function login(cedula, password) {
+        const data = await apiRequest('/login', {
+            method: 'POST',
+            body: JSON.stringify({ cedula, password })
+        });
+        return data;
+    }
+    
+    async function cargarPagos() {
+        try {
+            const data = await apiRequest('/pagos');
+            pagosCache.clear();
+            data.forEach(pago => {
+                pagosCache.set(pago.cedula, {
+                    cajero: pago.cajero,
+                    fecha: pago.fecha
+                });
+            });
+            actualizarEstadisticas();
+            return true;
+        } catch (error) {
+            console.error('Error cargando pagos:', error);
+            return false;
+        }
+    }
+    
+    async function buscarVotante(cedula) {
+        const cedulaLimpia = cedula.toString().trim().replace(/\D/g, '');
+        if (!cedulaLimpia) return null;
+        
+        try {
+            const votante = await apiRequest(`/votante/${cedulaLimpia}`);
+            return {
+                cedula: votante.cedula,
+                nombreCompleto: votante.nombre_completo,
+                seccional: votante.seccional,
+                mesa: votante.mesa,
+                orden: votante.orden,
+                lugarVotacion: votante.lugar_votacion,
+                distrito: votante.distrito,
+                seccionalNombre: votante.seccional_nombre
+            };
+        } catch (error) {
+            if (error.message.includes('404')) return null;
+            throw error;
+        }
+    }
+    
+    function yaPago(cedula) {
+        const cedulaLimpia = cedula.toString().trim().replace(/\D/g, '');
+        return pagosCache.has(cedulaLimpia);
+    }
+    
+    async function registrarPago(cedula) {
+        const cedulaLimpia = cedula.toString().trim().replace(/\D/g, '');
+        
+        if (procesandoPago) {
+            mostrarMensaje("⏳ Procesando, espere...", "info");
+            return false;
+        }
+        
+        procesandoPago = true;
+        
+        try {
+            await apiRequest('/pagar', {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    cedula: cedulaLimpia, 
+                    cajero: usuarioActual.nombre 
+                })
+            });
+            
+            pagosCache.set(cedulaLimpia, {
+                cajero: usuarioActual.nombre,
+                fecha: new Date().toISOString()
+            });
+            
+            actualizarEstadisticas();
+            return true;
+        } catch (error) {
+            mostrarMensaje(`❌ ${error.message}`, "error");
+            return false;
+        } finally {
+            procesandoPago = false;
+        }
+    }
+    
+    async function eliminarPago(cedula) {
+        const cedulaLimpia = cedula.toString().trim().replace(/\D/g, '');
+        
+        try {
+            await apiRequest(`/pagos/${cedulaLimpia}`, {
+                method: 'DELETE'
+            });
+            
+            pagosCache.delete(cedulaLimpia);
+            actualizarEstadisticas();
+            return true;
+        } catch (error) {
+            mostrarMensaje(`❌ ${error.message}`, "error");
+            return false;
+        }
+    }
+    
+    async function obtenerTotalVotantes() {
+        if (totalVotantes > 0) return totalVotantes;
+        try {
+            const data = await apiRequest('/total-votantes');
+            totalVotantes = data.total;
+            return totalVotantes;
+        } catch (error) {
+            console.error('Error obteniendo total:', error);
+            return 0;
+        }
+    }
+    
+    // ==================== FUNCIONES ADMIN ====================
+    
+    async function cargarListaUsuarios() {
+        try {
+            const usuarios = await apiRequest('/usuarios');
+            return usuarios;
+        } catch (error) {
+            console.error('Error cargando usuarios:', error);
+            return [];
+        }
+    }
+    
+    async function crearUsuarioDB(cedula, nombre, password, rol) {
+        try {
+            await apiRequest('/usuarios', {
+                method: 'POST',
+                body: JSON.stringify({ cedula, nombre, password, rol })
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+    
+    async function eliminarUsuarioDB(cedula) {
+        try {
+            await apiRequest(`/usuarios/${cedula}`, {
+                method: 'DELETE'
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+    
+    // ==================== FUNCIONES UI ====================
+    
+    function mostrarMensaje(mensaje, tipo = "error") {
+        const statusDiv = document.getElementById("statusMsg");
+        statusDiv.innerHTML = `<div class="mensaje-${tipo}">${mensaje}</div>`;
+        setTimeout(() => {
+            if (statusDiv.innerHTML.includes(mensaje)) {
+                statusDiv.innerHTML = '';
+            }
+        }, 4000);
+    }
+    
+    function actualizarEstadisticas() {
+        const statsFooter = document.getElementById("statsFooter");
+        if (totalVotantes > 0) {
+            statsFooter.innerHTML = `📊 Total: ${totalVotantes.toLocaleString()} registros | 💰 Pagados: ${pagosCache.size}`;
+        } else {
+            statsFooter.innerHTML = "📊 Cargando datos...";
+        }
+        
+        const contadorSpan = document.getElementById("contadorPagados");
+        if (contadorSpan) {
+            contadorSpan.innerText = pagosCache.size;
+        }
+    }
+    
+    function limpiarFormulario() {
+        document.getElementById("cedulaInput").value = "";
+        document.getElementById("resultContainer").classList.add("hidden");
+        document.getElementById("statusMsg").innerHTML = "";
+        votanteActual = null;
+        const pagarBtn = document.getElementById("pagarBtn");
+        pagarBtn.disabled = true;
+        pagarBtn.innerHTML = "💰 PAGAR";
+    }
+    
+    function mostrarResultados(votante) {
+        if (!votante) return;
+        
+        votanteActual = votante;
+        const cedulaNorm = votante.cedula.replace(/\D/g, '');
+        const yaPagoContribuyente = yaPago(cedulaNorm);
+        
+        document.getElementById("resultContainer").classList.remove("hidden");
+        
+        document.getElementById("voterFullName").innerText = votante.nombreCompleto;
+        document.getElementById("cedulaLine").innerHTML = `C.I. ${votante.cedula}`;
+        document.getElementById("lugarNombre").innerHTML = votante.lugarVotacion || "No especificado";
+        document.getElementById("distritoText").innerHTML = `DISTRITO / SECCIONAL: ${votante.distrito || '-'} · ${votante.seccionalNombre || '-'}`;
+        document.getElementById("mesaValue").innerText = votante.mesa || '-';
+        document.getElementById("ordenValue").innerText = votante.orden || '-';
+        document.getElementById("seccionalBadge").innerText = votante.seccional || 'SECCIONAL Nº 244';
+        
+        const pagarBtn = document.getElementById("pagarBtn");
+        if (yaPagoContribuyente) {
+            pagarBtn.disabled = true;
+            pagarBtn.innerHTML = "✅ PAGADO";
+        } else {
+            pagarBtn.disabled = false;
+            pagarBtn.innerHTML = "💰 PAGAR";
+        }
+    }
+    
+    async function realizarBusqueda() {
+        if (buscando) return;
+        
+        const cedula = document.getElementById("cedulaInput").value.trim();
+        if (cedula === "") {
+            mostrarMensaje("⚠️ Ingrese un número de cédula", "info");
+            return;
+        }
+        
+        buscando = true;
+        const buscarBtn = document.getElementById("buscarBtn");
+        buscarBtn.disabled = true;
+        buscarBtn.innerHTML = "🔍 Buscando...";
+        
+        try {
+            const votante = await buscarVotante(cedula);
+            if (!votante) {
+                mostrarMensaje(`❌ No se encontró la cédula ${cedula}`, "error");
+                document.getElementById("resultContainer").classList.add("hidden");
+                votanteActual = null;
+                return;
+            }
+            
+            document.getElementById("statusMsg").innerHTML = '';
+            mostrarResultados(votante);
+        } catch (error) {
+            mostrarMensaje(`❌ Error: ${error.message}`, "error");
+        } finally {
+            buscando = false;
+            buscarBtn.disabled = false;
+            buscarBtn.innerHTML = "🔎 Buscar";
+        }
+    }
+    
+    async function procesarPago() {
+        if (!votanteActual) {
+            mostrarMensaje("🔔 Primero busque un votante", "info");
+            return;
+        }
+        
+        const nombre = votanteActual.nombreCompleto;
+        const cedula = votanteActual.cedula;
+        
+        if (yaPago(cedula)) {
+            mostrarMensaje(`❌ ${nombre} ya realizó su pago`, "error");
+            return;
+        }
+        
+        const pagarBtn = document.getElementById("pagarBtn");
+        pagarBtn.disabled = true;
+        pagarBtn.innerHTML = "⏳ Procesando...";
+        
+        const success = await registrarPago(cedula);
+        
+        if (success) {
+            mostrarMensaje(`✅ ¡PAGADO! - ${nombre}`, "success");
+            pagarBtn.disabled = true;
+            pagarBtn.innerHTML = "✅ PAGADO";
+        } else {
+            pagarBtn.disabled = false;
+            pagarBtn.innerHTML = "💰 PAGAR";
+        }
+    }
+    
+    async function procesarDespago() {
+        if (usuarioActual?.rol !== "admin") {
+            mostrarMensaje("⛔ Solo administradores pueden deshacer pagos", "error");
+            return;
+        }
+        
+        if (!votanteActual) {
+            mostrarMensaje("🔔 Primero busque un votante", "info");
+            return;
+        }
+        
+        const nombre = votanteActual.nombreCompleto;
+        const cedula = votanteActual.cedula;
+        
+        if (!yaPago(cedula)) {
+            mostrarMensaje(`❌ ${nombre} no tiene un pago registrado`, "error");
+            return;
+        }
+        
+        const success = await eliminarPago(cedula);
+        
+        if (success) {
+            const pagarBtn = document.getElementById("pagarBtn");
+            pagarBtn.disabled = false;
+            pagarBtn.innerHTML = "💰 PAGAR";
+            mostrarMensaje(`↩️ Pago eliminado para ${nombre}`, "info");
+        }
+    }
+    
+    // ==================== FUNCIONES MODALES ADMIN ====================
+    
+    async function abrirGestionUsuarios() {
+        if (usuarioActual?.rol !== "admin") return;
+        
+        document.getElementById("userModal").classList.add("active");
+        const usuarios = await cargarListaUsuarios();
+        mostrarListaUsuarios(usuarios);
+    }
+    
+    function mostrarListaUsuarios(usuarios) {
+        const lista = document.getElementById("listaUsuarios");
+        lista.innerHTML = "";
+        
+        usuarios.forEach(user => {
+            const div = document.createElement("div");
+            div.className = "usuario-item";
+            div.innerHTML = `
+                <div>
+                    <strong>${user.nombre}</strong><br>
+                    <small>Cédula: ${user.cedula} | Rol: ${user.rol === "admin" ? "👑 ADMIN" : "💰 CAJA"}</small>
+                </div>
+                ${user.cedula !== "admin" ? `<button class="delete-user" data-cedula="${user.cedula}">🗑️</button>` : '<span style="font-size:0.7rem;">🔒 Principal</span>'}
+            `;
+            lista.appendChild(div);
+        });
+        
+        document.querySelectorAll('.delete-user').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const cedula = btn.getAttribute('data-cedula');
+                const result = await eliminarUsuarioDB(cedula);
+                if (result.success) {
+                    const usuariosActualizados = await cargarListaUsuarios();
+                    mostrarListaUsuarios(usuariosActualizados);
+                    mostrarMensaje(`🗑️ Usuario eliminado`, "info");
+                } else {
+                    mostrarMensaje(`❌ ${result.error}`, "error");
+                }
+            });
+        });
+    }
+    
+    async function crearUsuario() {
+        const cedula = document.getElementById("newUserCedula").value.trim();
+        const nombre = document.getElementById("newUserName").value.trim();
+        const password = document.getElementById("newUserPassword").value.trim();
+        const rol = document.getElementById("newUserRol").value;
+        
+        if (!cedula || !nombre || !password) {
+            mostrarMensaje("❌ Complete todos los campos", "error");
+            return;
+        }
+        
+        const result = await crearUsuarioDB(cedula, nombre, password, rol);
+        
+        if (result.success) {
+            document.getElementById("newUserCedula").value = "";
+            document.getElementById("newUserName").value = "";
+            document.getElementById("newUserPassword").value = "";
+            const usuarios = await cargarListaUsuarios();
+            mostrarListaUsuarios(usuarios);
+            mostrarMensaje(`✅ Usuario ${nombre} creado`, "success");
+        } else {
+            mostrarMensaje(`❌ ${result.error}`, "error");
+        }
+    }
+    
+    async function abrirVerPagados() {
+        if (usuarioActual?.rol !== "admin") return;
+        
+        document.getElementById("pagadosModal").classList.add("active");
+        document.getElementById("buscarPagados").value = "";
+        await mostrarListaPagados();
+    }
+    
+    async function mostrarListaPagados(filtro = "") {
+        const lista = document.getElementById("listaPagados");
+        lista.innerHTML = '<div class="loading">Cargando pagos...</div>';
+        
+        try {
+            const pagosArray = [];
+            for (const [cedula, pago] of pagosCache) {
+                try {
+                    const votante = await buscarVotante(cedula);
+                    if (votante) {
+                        const nombreMatch = votante.nombreCompleto.toLowerCase().includes(filtro.toLowerCase());
+                        const cedulaMatch = cedula.includes(filtro);
+                        if (!filtro || nombreMatch || cedulaMatch) {
+                            pagosArray.push({
+                                ...votante,
+                                cajero: pago.cajero,
+                                fecha: pago.fecha
+                            });
+                        }
+                    } else {
+                        if (!filtro || cedula.includes(filtro)) {
+                            pagosArray.push({
+                                cedula: cedula,
+                                nombreCompleto: "Desconocido",
+                                cajero: pago.cajero,
+                                fecha: pago.fecha
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error:', e);
+                }
+            }
+            
+            if (pagosArray.length === 0) {
+                lista.innerHTML = '<div class="loading">📭 No hay pagos registrados</div>';
+                return;
+            }
+            
+            lista.innerHTML = "";
+            pagosArray.forEach(votante => {
+                const div = document.createElement("div");
+                div.className = "pago-item";
+                div.innerHTML = `
+                    <div>
+                        <strong>${votante.nombreCompleto}</strong><br>
+                        <small>Cédula: ${votante.cedula}</small><br>
+                        <small style="color: #F59E0B;">💰 Cobrado por: ${votante.cajero}</small>
+                    </div>
+                    <button class="despagar-item" data-cedula="${votante.cedula}">↩️ Despagar</button>
+                `;
+                lista.appendChild(div);
+            });
+            
+            document.querySelectorAll('.despagar-item').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const cedula = btn.getAttribute('data-cedula');
+                    await eliminarPago(cedula);
+                    await mostrarListaPagados(document.getElementById("buscarPagados").value);
+                });
+            });
+        } catch (error) {
+            lista.innerHTML = '<div class="loading">❌ Error cargando pagos</div>';
+        }
+    }
+    
+    function filtrarPagados() {
+        const busqueda = document.getElementById("buscarPagados").value;
+        mostrarListaPagados(busqueda);
+    }
+    
+    function limpiarFiltroPagados() {
+        document.getElementById("buscarPagados").value = "";
+        mostrarListaPagados("");
+    }
+    
+    function cerrarModal(modalId) {
+        document.getElementById(modalId).classList.remove("active");
+    }
+    
+    // ==================== LOGIN Y CIERRE ====================
+    
+    async function iniciarSesion() {
+        const cedula = document.getElementById("loginCedula").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const loginError = document.getElementById("loginError");
+        
+        if (!cedula || !password) {
+            loginError.style.display = "block";
+            loginError.innerHTML = "❌ Por favor, ingrese cédula y contraseña";
+            return;
+        }
+        
+        loginError.style.display = "none";
+        
+        const loginBtn = document.getElementById("loginBtn");
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = "⏳ Iniciando...";
+        
+        try {
+            const result = await login(cedula, password);
+            
+            if (result.success) {
+                usuarioActual = result.usuario;
+                
+                document.getElementById("loginOverlay").style.display = "none";
+                document.getElementById("mainSystem").classList.add("active");
+                document.getElementById("userNameDisplay").innerText = usuarioActual.nombre;
+                document.getElementById("userRolBadge").innerText = usuarioActual.rol === "admin" ? "👑 ADMIN" : "💰 CAJA";
+                
+                const despagarBtn = document.getElementById("despagarBtn");
+                const adminUserBtn = document.getElementById("adminUserBtn");
+                const adminPagadosBtn = document.getElementById("adminPagadosBtn");
+                
+                if (usuarioActual.rol === "admin") {
+                    despagarBtn.style.display = "flex";
+                    adminUserBtn.style.display = "inline-block";
+                    adminPagadosBtn.style.display = "inline-block";
+                } else {
+                    despagarBtn.style.display = "none";
+                    adminUserBtn.style.display = "none";
+                    adminPagadosBtn.style.display = "none";
+                }
+                
+                await cargarPagos();
+                await obtenerTotalVotantes();
+                actualizarEstadisticas();
+                limpiarFormulario();
+            } else {
+                loginError.style.display = "block";
+                loginError.innerHTML = `❌ ${result.error}`;
+            }
+        } catch (error) {
+            loginError.style.display = "block";
+            loginError.innerHTML = `❌ Error de conexión con el servidor`;
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = "🔓 INICIAR SESIÓN";
+        }
+    }
+    
+    function cerrarSesion() {
+        usuarioActual = null;
+        document.getElementById("loginOverlay").style.display = "flex";
+        document.getElementById("mainSystem").classList.remove("active");
+        document.getElementById("loginCedula").value = "";
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginError").style.display = "none";
+        limpiarFormulario();
+    }
+    
+    // ==================== INICIALIZACIÓN DE EVENTOS ====================
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        // Login
+        document.getElementById("loginBtn")?.addEventListener("click", iniciarSesion);
+        document.getElementById("loginPassword")?.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") iniciarSesion();
+        });
+        document.getElementById("loginCedula")?.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") iniciarSesion();
+        });
+        
+        // Sistema principal
+        document.getElementById("buscarBtn")?.addEventListener("click", realizarBusqueda);
+        document.getElementById("cedulaInput")?.addEventListener("keypress", e => e.key === "Enter" && realizarBusqueda());
+        document.getElementById("pagarBtn")?.addEventListener("click", procesarPago);
+        document.getElementById("despagarBtn")?.addEventListener("click", procesarDespago);
+        document.getElementById("nuevaBusquedaBtn")?.addEventListener("click", limpiarFormulario);
+        document.getElementById("logoutBtn")?.addEventListener("click", cerrarSesion);
+        
+        // Admin botones
+        document.getElementById("adminUserBtn")?.addEventListener("click", abrirGestionUsuarios);
+        document.getElementById("adminPagadosBtn")?.addEventListener("click", abrirVerPagados);
+        
+        // Modales
+        document.getElementById("crearUserBtn")?.addEventListener("click", crearUsuario);
+        document.getElementById("closeUserModal")?.addEventListener("click", () => cerrarModal("userModal"));
+        document.getElementById("closePagadosModal")?.addEventListener("click", () => cerrarModal("pagadosModal"));
+        document.getElementById("filtrarBtn")?.addEventListener("click", filtrarPagados);
+        document.getElementById("limpiarFiltroBtn")?.addEventListener("click", limpiarFiltroPagados);
+        
+        // Verificar conexión al servidor
+        fetch(`${API_URL}/total-votantes`)
+            .then(() => console.log('✅ Conectado al servidor'))
+            .catch(() => console.log('⚠️ Servidor no disponible'));
+    });
+</script>
+</body>
+</html>
